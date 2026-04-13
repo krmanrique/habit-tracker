@@ -1,8 +1,10 @@
 package com.habitflow.api.infrastructure.config;
 
 import com.habitflow.api.domain.ports.output.CategoriaRepositoryPort;
+import com.habitflow.api.domain.ports.output.HabitoRepositoryPort;
 import com.habitflow.api.domain.ports.output.UsuarioRepositoryPort;
 import com.habitflow.api.domain.service.CategoriaService;
+import com.habitflow.api.domain.service.HabitoService;
 import com.habitflow.api.domain.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,5 +22,11 @@ public class BeanConfig {
   public UsuarioService usuarioService(
           UsuarioRepositoryPort usuarioRepositoryPort) {
     return new UsuarioService(usuarioRepositoryPort);
+  }
+
+  @Bean
+  public HabitoService habitoService(
+          HabitoRepositoryPort habitoRepositoryPort) {
+    return new HabitoService(habitoRepositoryPort);
   }
 }
