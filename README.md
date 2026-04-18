@@ -46,6 +46,8 @@ El sistema se basa en las siguientes entidades:
 * Registro de hábito
 * Racha
 
+<img width="584" height="1068" alt="DiagramaER" src="https://github.com/user-attachments/assets/f5acab32-a1fe-46ba-acfb-927d80b555f4" />
+
 ---
 
 ## ▶️ Ejecución
