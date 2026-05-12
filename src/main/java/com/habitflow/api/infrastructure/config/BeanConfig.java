@@ -7,6 +7,7 @@ import com.habitflow.api.domain.service.RegistroHabitoService;
 import com.habitflow.api.domain.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.habitflow.api.infrastructure.config.JwtUtil;
 
 @Configuration
 public class BeanConfig {
@@ -19,8 +20,9 @@ public class BeanConfig {
 
   @Bean
   public UsuarioService usuarioService(
-          UsuarioRepositoryPort usuarioRepositoryPort) {
-    return new UsuarioService(usuarioRepositoryPort);
+          UsuarioRepositoryPort usuarioRepositoryPort,
+          JwtUtil jwtUtil) {
+    return new UsuarioService(usuarioRepositoryPort, jwtUtil);
   }
 
   @Bean

@@ -1,17 +1,21 @@
 package com.habitflow.api.domain.service;
 
+import com.habitflow.api.domain.model.AuthResponse;
 import com.habitflow.api.domain.model.Usuario;
 import com.habitflow.api.domain.ports.input.UsuarioUseCase;
 import com.habitflow.api.domain.ports.output.UsuarioRepositoryPort;
+import com.habitflow.api.infrastructure.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 public class UsuarioService implements UsuarioUseCase {
 
     private final UsuarioRepositoryPort usuarioRepositoryPort;
+    private final JwtUtil jwtUtil;                              // ✅ inyectado
 
     @Override
     public Mono<Usuario> registrar(Usuario usuario) {
@@ -21,16 +25,21 @@ public class UsuarioService implements UsuarioUseCase {
     }
 
     @Override
-    public Mono<Usuario> login(String email, String password) {
+    public Mono<AuthResponse> login(String email, String password) {
         return usuarioRepositoryPort.findByEmail(email)
                 .filter(u -> u.getPassword().equals(password))
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Credenciales incorrectas")));
+                .switchIfEmpty(Mono.error(new RuntimeException("Credenciales incorrectas")))
+                .map(usuario -> {
+                    // Generamos el token y construimos la respuesta
+                    String token = jwtUtil.generarToken(usuario.getEmail(), usuario.getId());
+                    return AuthResponse.of(token, usuario);
+                });
     }
 
     @Override
     public Mono<Usuario> actualizar(String id, Usuario usuario) {
         return usuarioRepositoryPort.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Usuario no encontrado con id: " + id)))
                 .flatMap(existing -> {
                     existing.setNombre(usuario.getNombre());
                     existing.setEmail(usuario.getEmail());
@@ -41,6 +50,7 @@ public class UsuarioService implements UsuarioUseCase {
     @Override
     public Mono<Usuario> inactivar(String id) {
         return usuarioRepositoryPort.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Usuario no encontrado con id: " + id)))
                 .flatMap(existing -> {
                     existing.setActivo(false);
                     return usuarioRepositoryPort.save(existing);
@@ -54,6 +64,7 @@ public class UsuarioService implements UsuarioUseCase {
 
     @Override
     public Mono<Usuario> obtenerPorId(String id) {
-        return usuarioRepositoryPort.findById(id);
+        return usuarioRepositoryPort.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Usuario no encontrado con id: " + id)));
     }
 }
